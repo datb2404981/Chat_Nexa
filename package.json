@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "mongoose-delete": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/mongoose-delete": "^1.0.6"
+  }
+}

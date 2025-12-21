@@ -1,6 +1,8 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { TransformInterceptor } from './common/interceptor/transform.interceptor';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +21,13 @@ async function bootstrap() {
     whitelist: true, // Tự động bỏ đi các field thừa
     forbidNonWhitelisted: true, // Báo lỗi nếu gửi field linh tinh lên
   }));
+
+  // 4. Kích hoạt Interceptor Global
+  // Cần Reflector để đọc được cái decorator @ResponseMessage
+  app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
+
+  //5. config cookie
+  app.use(cookieParser());
 
   const port = process.env.PORT || 8080;
   await app.listen(port);
