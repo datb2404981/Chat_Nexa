@@ -1,9 +1,33 @@
-import { Button } from "@/components/ui/button"
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import ChatAppPage from './pages/ChatAppPage';
+import { Toaster  } from "sonner";
+import SignUpPage from './pages/SignUpPage';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 export default function App() {
-  return (
-    <div className="p-10">
-      <Button>Bấm em đi!</Button>
-    </div>
-  )
+  return <>
+    <Toaster/>
+    <BrowserRouter>
+      <Routes>
+        {/* public routers*/}
+        <Route
+          path='/login'
+          element={<LoginPage />}
+        />
+        <Route
+          path='/signup'
+          element={<SignUpPage />}
+        />
+
+        {/* protectect routers*/}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path='/'
+            element={<ChatAppPage />}
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  </>
 }
