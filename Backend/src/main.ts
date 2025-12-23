@@ -12,7 +12,10 @@ async function bootstrap() {
 
   // 2. Cho phép Frontend gọi API (CORS)
   app.enableCors({
-    origin: '*', // Tạm thời mở hết, sau này deploy sẽ chặn lại sau
+    origin: true, // Allow all origins temporarily to debug, or keep specific ['http://localhost:5173']
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
     credentials: true,
   });
 

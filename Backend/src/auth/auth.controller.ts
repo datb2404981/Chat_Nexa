@@ -44,7 +44,7 @@ export class AuthController {
   @ResponseMessage("Logout User")
   async logout(
     @Res({ passthrough: true }) res: Response,
-    @User()user :IUser) {
+    @User() user: IUser) {
     return await this.authService.logout(user,res);
   }
 
@@ -57,7 +57,8 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @SkipPermission()
-  async googleLoginCallback(@Req() req, @Res({ passthrough: true }) res: Response) {
-      return this.authService.loginGoogle(req.user, res);
-  }
+  async googleLoginCallback(@Req() req, @Res() res: Response) {
+    const data = await this.authService.loginGoogle(req.user,res);
+    return res.redirect('http://localhost:5173/login?status=success');
+}
 }

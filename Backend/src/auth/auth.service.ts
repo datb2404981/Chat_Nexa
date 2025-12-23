@@ -65,7 +65,7 @@ export class AuthService {
     //xóa refresh token khỏi user
     const userUpdate = await this.usersService.update(user.email, { refreshToken: null });
     res.clearCookie('refresh_token');
-    return userUpdate;
+    return true;
   }
 
   async loginGoogle(googleUser: any, res: Response) {
@@ -103,7 +103,7 @@ export class AuthService {
     // Set Cookie một chỗ duy nhất -> Dễ quản lý
     response.cookie('refresh_token', refresh_token, {
       httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production', // Tự động check môi trường
+      secure: false, // Ensure secure is false for localhost debugging
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -125,4 +125,24 @@ export class AuthService {
       expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRE') || '1d') as any,
     });
   }
+
+  async validateGoogleUser(googleUser: any) {
+    // 1. Tìm xem user đã có trong DB chưa
+    const user = await this.usersService.findOne(googleUser.email);
+
+    if (user) {
+        // Có rồi -> Đây là Login -> Trả về user luôn
+        return user;
+    }
+
+    // 2. Chưa có -> Đây là Register -> Tạo mới
+    const newUser = await this.usersService.create({
+        email: googleUser.email,
+        username: `${googleUser.lastName} ${googleUser.firstName}`,
+        avatar: googleUser.picture,
+        password: '', // Để trống hoặc random string
+    });
+
+    return newUser;
+}
 }
