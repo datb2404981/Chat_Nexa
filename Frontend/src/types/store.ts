@@ -10,7 +10,7 @@ export interface AuthStore{
     username: string,
     email: string,
     password: string,
-  ) => Promise<boolean>;
+  ) => Promise<{ success: boolean; message?: string }>;
 
   clearState: () => void;
 

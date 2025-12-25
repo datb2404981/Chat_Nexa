@@ -1,10 +1,10 @@
 import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { Response } from 'express';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto, SignInDto } from './dto/AuthDto';
 import { ConfigService } from '@nestjs/config';
-import { IUser } from '../users/users.interface';
+import { UsersService } from '../users/users.service';
+import type { IUser } from '../users/users.interface';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +15,7 @@ export class AuthService {
 
   async login(loginInDto: SignInDto, res: Response): Promise<any> {
     //tìm kiếm có tài khoản không
-    const user = await this.usersService.findOne(loginInDto.email);
+    const user = await this.usersService.findUserByEmail(loginInDto.email);
     if (!user) {
       throw new UnauthorizedException("Email hoặc password không đúng!");
     }
@@ -47,7 +47,7 @@ export class AuthService {
       });
       
       //kiểm tra user
-      const user = await this.usersService.findOne(payload.email);
+      const user = await this.usersService.findUserByEmail(payload.email);
       if (!user) {
         throw new BadRequestException("Tài khoản không tồn tại");
       }else if (user.refreshToken !== refresh_token) {
@@ -63,13 +63,13 @@ export class AuthService {
 
   async logout(user : IUser, res : Response ) {
     //xóa refresh token khỏi user
-    const userUpdate = await this.usersService.update(user.email, { refreshToken: null });
+    const userUpdate = await this.usersService.updateProfile(user.email, { refreshToken: null });
     res.clearCookie('refresh_token');
     return true;
   }
 
   async loginGoogle(googleUser: any, res: Response) {
-      let user: any = await this.usersService.findOne(googleUser.email);
+      let user: any = await this.usersService.findUserByEmail(googleUser.email);
       if (!user) {
         const password = Math.random().toString(36).slice(-8);
         const username = `${googleUser.firstName || ''} ${googleUser.lastName || ''}`.trim() || googleUser.email.split('@')[0];
@@ -98,7 +98,7 @@ export class AuthService {
     const refresh_token = await this.createRefreshToken(payload);
 
     //lưu refresh_token vào database
-    await this.usersService.update(user.email, { refreshToken: refresh_token });
+    await this.usersService.updateProfile(user.email, { refreshToken: refresh_token });
 
     // Set Cookie một chỗ duy nhất -> Dễ quản lý
     response.cookie('refresh_token', refresh_token, {
@@ -128,7 +128,7 @@ export class AuthService {
 
   async validateGoogleUser(googleUser: any) {
     // 1. Tìm xem user đã có trong DB chưa
-    const user = await this.usersService.findOne(googleUser.email);
+    const user = await this.usersService.findUserByEmail(googleUser.email);
 
     if (user) {
         // Có rồi -> Đây là Login -> Trả về user luôn

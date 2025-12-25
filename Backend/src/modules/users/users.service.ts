@@ -24,12 +24,12 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = await this.userModel.findOne({ email: createUserDto.email,deleted :{$ne : true}  })
-      .lean().exec();
-    
-    if (user) {
-      throw new ConflictException("Tài khoản đã tồn tại!")
-    }
+    const [existringEmail, existringUser] = await Promise.all([
+      this.findUserByEmail(createUserDto.email),
+      this.findUserByUsername(createUserDto.username)]);
+
+    if (existringEmail) throw new ConflictException("Email đã tồn tại!");
+    if (existringUser) throw new ConflictException("Username đã tồn tại!");
 
     const password = await this.hashpassword(createUserDto.password);
     const created = await this.userModel.create({ ...createUserDto, password });
@@ -42,8 +42,12 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(email: string) {
+  findUserByEmail(email: string) {
     return this.userModel.findOne({ email,deleted :{$ne : true} }).lean().exec();
+  }
+  
+  findUserByUsername(username: string) {
+    return this.userModel.findOne({ username,deleted :{$ne : true} }).lean().exec();
   }
 
   async findByRefreshToken(refreshToken:string) {
@@ -51,11 +55,12 @@ export class UsersService {
   }
 
 
-  async update(email : string, updateUserDto: any) {
+  async updateProfile(email : string, updateUserDto: any) {
     const update = await this.userModel.updateOne({ email }, updateUserDto);
 
     if (update.matchedCount === 0) throw new ConflictException("Tài khoản không tồn tại!");
-    return update;
+    const user = await this.findUserByEmail(email);
+    return user;
   }
 
   remove(id: number) {

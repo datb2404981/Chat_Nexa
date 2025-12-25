@@ -23,7 +23,7 @@ export class Users extends Document {
   @Prop()
   bio: string;
 
-  @Prop()
+  @Prop({default:'./Frontend/public/default.jpg'})
   avatar: string;
 
   @Prop({ default: false })
@@ -41,3 +41,7 @@ export class Users extends Document {
 
 // 3️⃣ Tạo schema thật cho Mongoose
 export const UserSchema = SchemaFactory.createForClass(Users);
+
+// Tạo unique index nhưng chỉ áp dụng với các bản ghi chưa bị xóa (deleted: false hoặc không tồn tại)
+UserSchema.index({ username: 1 }, { unique: true, partialFilterExpression: { deleted: { $eq: false } } });
+UserSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { deleted: { $eq: false } } });

@@ -25,12 +25,13 @@ export const useAuthStore = create<AuthStore>((set,get) => ({
       get().fetchMe();
 
       toast.success('Đăng ký thành công');
-      return true;
+      return { success: true };
       
     } catch (error: any) {
       console.log(error);
-      toast.error(error.response?.data?.message || 'Đăng ký thất bại');
-      return false;
+      const message = error.response?.data?.message || 'Đăng ký thất bại';
+      // toast.error(message); // Let component handle error display for fields
+      return { success: false, message };
     } finally {
       set({ loading: false });
     }

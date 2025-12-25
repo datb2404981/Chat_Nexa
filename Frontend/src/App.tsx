@@ -7,7 +7,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 export default function App() {
   return <>
-    <Toaster/>
+    <Toaster position="top-right" richColors />
     <BrowserRouter>
       <Routes>
         {/* public routers*/}

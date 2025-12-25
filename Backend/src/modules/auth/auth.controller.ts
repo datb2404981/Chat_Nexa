@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { ResponseMessage, SkipPermission, User } from '../common/decorator/decorators';
 import { RegisterDto, SignInDto } from './dto/AuthDto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
-import type { IUser } from '../users/users.interface';
 import { GoogleAuthGuard } from './google-auth.guard';
+import { ResponseMessage, SkipPermission, User } from '../../common/decorator/decorators';
+import type { IUser } from '../users/users.interface';
 
 @Controller('auth')
 export class AuthController {

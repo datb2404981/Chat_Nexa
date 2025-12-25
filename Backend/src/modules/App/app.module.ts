@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
+import { UsersModule } from '../users/users.module';
 import mongooseDelete from 'mongoose-delete';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { FriendsModule } from '../friends/friends.module';
+import { AuthModule } from '../auth/auth.module';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ConversationModule } from '../conversation/conversation.module';
+import { MessagesModule } from '../messages/messages.module';
+import { FilesModule } from '../files/files.module';
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     }),
     UsersModule,
     AuthModule,
+    FriendsModule,
+    ConversationModule,
+    MessagesModule,
+    FilesModule
   ],
   controllers: [],
   providers: [{

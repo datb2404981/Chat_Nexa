@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { useAuthStore } from "@/store/useAuthStore"
 
 const loginSchema = z.object({
@@ -24,7 +25,6 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-
 export function SignUpForm({
   className,
   ...props
@@ -35,6 +35,7 @@ export function SignUpForm({
   const { 
     register, 
     handleSubmit, 
+    setError,
     formState: { errors, isSubmitting } 
   } = useForm<LoginFormValues>({ 
     resolver: zodResolver(loginSchema),
@@ -44,8 +45,18 @@ export function SignUpForm({
 
   const onSubmit = async (data: LoginFormValues) => {
     //gọi backend
-    const success = await signUp(data.username, data.email, data.password);
-    if(success) navigate("/");
+    const { success, message } = await signUp(data.username, data.email, data.password);
+    if(success) {
+      navigate("/");
+    } else {
+      if (message === "Username đã tồn tại!") {
+        setError("username", { type: "manual", message: message });
+      } else if (message === "Email đã tồn tại!") {
+        setError("email", { type: "manual", message: message });
+      } else {
+        toast.error(message);
+      }
+    }
   }
 
   return (
