@@ -4,7 +4,7 @@ import { Types,Document } from "mongoose";
 
 export type ConversationDocument = Conversations & Document;
 
-@Schema({ timestamps: true }) 
+@Schema({ timestamps: true, strict: false }) 
 export class Conversations {
   @Prop({ default: false })
   isGroup: boolean;
@@ -32,8 +32,11 @@ export class Conversations {
   })
   readBy: { userId: Types.ObjectId, lastSeenAt: Date }[]; 
 
-  @Prop({default:'./Frontend/public/default-group-avatar.svg'})
-  avator: string;
+  @Prop({ type: Object, default: {} })
+  unreadCounts: Record<string, number>; 
+
+  @Prop({default:''})
+  avatar: string;
 
     @Prop({
       type: {
@@ -53,11 +56,11 @@ export class Conversations {
     @Prop()
     deletedAt: Date;
     @Prop({
-      type: {
+      type: [{
         _id: { type: Types.ObjectId, ref: 'Users' },
-      }
+      }]
     })
-    deletedBy: { _id: Types.ObjectId };
+    deletedBy: { _id: Types.ObjectId }[];
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversations);

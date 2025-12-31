@@ -20,15 +20,14 @@ export class Message {
   type: string;
 
   @Prop()
-  fileUrl: string; // Dùng chung cho image/file (ERD dùng imgUrl)
+  imgUrl: string; // Dùng chung cho image/file (ERD dùng imgUrl)
   
   @Prop({
     type: {
       _id: { type: Types.ObjectId, ref: Users.name },
     }
   })
-  updatedBy: { _id: Types.ObjectId};
-  
+  updatedBy: { _id: Types.ObjectId };
   
   @Prop()
   deletedAt: Date;

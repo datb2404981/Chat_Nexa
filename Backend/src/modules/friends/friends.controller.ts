@@ -38,15 +38,16 @@ export class FriendsController {
   @Patch('requests/:id/accept')
   @ResponseMessage("Accept Friend Request")
   async acceptFriendRequest(
-    @Param('id') id: string) {
-    return this.friendsService.updateStatusFriendRequest(id,"ACCEPTED");
+    @Param('id') id: string,
+    @User() user: IUser) {
+    return this.friendsService.updateStatusFriendRequest(id,"ACCEPTED",user);
   }
 
   @Patch('requests/:id/decline')
   @ResponseMessage("Deline Friend Request")
   async declineFriendRequest(
-    @Param('id') id: string) {
-    return this.friendsService.updateStatusFriendRequest(id,"REJECTED");
+    @Param('id') id: string,@User() user: IUser) {
+    return this.friendsService.updateStatusFriendRequest(id,"REJECTED",user);
   }
 
   @Delete('unfriend')

@@ -54,7 +54,11 @@ export function LoginForm({
               href="/#"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <img src="/Logo App Chat.png" alt="Chat Nexa" className="h-20 w-20" />
+              <div className="flex items-center justify-center size-20 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-3xl shadow-2xl shadow-blue-500/30 mb-2 transition-transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-10 text-white">
+                 <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 9.75a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Zm0 4.5a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                </svg>
+              </div>
               <span className="sr-only">Chat Nexa</span>
             </a>
             <h1 className="text-xl font-bold">Chào mừng quay lại với <span className="bg-gradient-to-r from-[#00B4DB] to-[#6a11cb] bg-clip-text text-transparent font-extrabold">Chat Nexa</span></h1>
@@ -72,6 +76,7 @@ export function LoginForm({
                 id="email"
                 type="email"
                 placeholder="m@example.com"
+                autoComplete="username"
                 {...register("email")}
               />
               {errors.email && (

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards, UnauthorizedException } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, SignInDto } from './dto/AuthDto';
@@ -37,9 +37,13 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response) {
     const refreshToken = (req as any).cookies['refresh_token'];
+    if (!refreshToken) {
+       throw new UnauthorizedException("Refresh Token validation failed");
+    }
     return await this.authService.processNewToken(refreshToken,res);
   }
 
+  
   @Post('logout')
   @ResponseMessage("Logout User")
   async logout(

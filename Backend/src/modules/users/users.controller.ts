@@ -17,19 +17,34 @@ export class UsersController {
 
   @Get("search")
   @ResponseMessage("Search User")
-  async search(@Query("username") username: string){
-    const user = await this.usersService.findUserByUsername(username);
-    return {
-      _id: user?._id,
-      avatar: user?.avatar,
+  async search(@Query("username") username: string,
+  @User() user: IUser) {
+    
+    //kiểm tra nếu gửi giá trị trống lên
+    if (!username || username === "") {
+      return [];
     }
+    return await this.usersService.search(username,user);
+  }
+
+  @Get("search-new-friends")
+  @ResponseMessage("Search New Friend")
+  async searchNewfriend(
+  @Query("keyword") keyword: string,
+  @User() user: IUser) {
+    //kiểm tra nếu gửi giá trị trống lên
+    if (!keyword || keyword  === "") {
+      return [];
+    }
+    return await this.usersService.searchNewFriend(keyword,user);
   }
 
 
   @Get("me")
   @ResponseMessage("Get Me")
-  findOne(@User() user: IUser) {
-    return user;
+  async findOne(@User() user: IUser) {
+    const userData = await this.usersService.findUserByEmail(user.email);
+    return userData;
   }
 
   @Patch('profile')

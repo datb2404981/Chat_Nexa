@@ -48,7 +48,7 @@ export class ConversationController {
   @ResponseMessage("Get Conversation Detail")
   getHistoryMessage(
     @Param('id') id: string,
-    @Query("page") currentPage: number,
+    @Query("cursor") currentPage: number,
     @Query("limit") limit: number,) {
     return this.messagesService.getHistoryMessage(id,currentPage,limit);
   }

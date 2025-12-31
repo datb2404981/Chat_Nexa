@@ -1,4 +1,8 @@
 import api from "@/lib/api"
+import axios from "axios";
+
+// Helper to get API URL consistently
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
 export const authService = {
   signUp: async (username: string, email: string, password: string) => {
@@ -28,8 +32,10 @@ export const authService = {
   },
 
   refresh: async () => {
-    const res = await api.post("/auth/refresh", {}, { withCredentials: true });
-    return res.data.access_token;
+     // Use raw axios to bypass interceptors that might attach old token
+    const res = await axios.post(`${API_URL}/auth/refresh`, {}, { withCredentials: true });
+    // Handle nested response structure flexibility
+    const data = res.data;
+    return data.data?.access_token || data.data?.accessToken || data.access_token || data.accessToken;
   }
-
 }

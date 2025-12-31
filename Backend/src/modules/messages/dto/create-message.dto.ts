@@ -14,5 +14,5 @@ export class CreateMessageDto {
 
   @IsOptional()
   @IsString()
-  fileUrl?: string
+  imgUrl?: string
 }

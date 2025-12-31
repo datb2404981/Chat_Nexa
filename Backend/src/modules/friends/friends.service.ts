@@ -5,12 +5,14 @@ import { FriendDocument, Friends } from './schema/friend.schema';
 import type { SoftDeleteModel } from 'mongoose-delete';
 import { IUser } from '../users/users.interface';
 import { UnfriendDto } from './dto/unfriend.dto';
+import { ChatGateway } from '../gateway/chat.gateway';
 
 @Injectable()
 export class FriendsService {
   constructor(
     @InjectModel(Friends.name)
     private friendModel: SoftDeleteModel<FriendDocument>,
+    private chatGateway: ChatGateway
   ){}
 
   async createFriendResquest(
@@ -37,7 +39,14 @@ export class FriendsService {
       status: 'PENDING',
       message: createFriendRequest.message,
     });
-    return newFriend;
+
+    const populatedRequest = await newFriend.populate('senderId','username avatar email');
+
+    this.chatGateway.server
+      .to(createFriendRequest.receiverId.toString())
+      .emit('new_friend_request',populatedRequest);
+    
+    return populatedRequest;
   }
 
   async getAllFriendList(user :IUser) {
@@ -99,9 +108,13 @@ export class FriendsService {
     })
   }
 
-  async updateStatusFriendRequest(id: string, status: string) {
+  async updateStatusFriendRequest(id: string, status: string,user :IUser) {
     //tìm friend request
-    const friendRes = await this.friendModel.findOne({ _id: id, deleted: { $ne: true } }).lean().exec();
+    const friendRes = await this.friendModel.findOne({
+      _id: id,
+      receiverId: user._id,
+      deleted: { $ne: true }
+    }).lean().exec();
 
     //validate
     if (!friendRes) {
@@ -118,7 +131,18 @@ export class FriendsService {
         "message": "Declined"
       };
     } else {
-      await this.friendModel.updateOne({ _id: id, deleted: { $ne: true } }, { status: status } );
+      const populatedRes = await this.friendModel.findOneAndUpdate(
+        { _id: id, deleted: { $ne: true } }, 
+        { status: status },
+        { new: true }
+      )
+      .populate('senderId', 'username avatar email')
+      .populate('receiverId', 'username avatar email');
+
+      this.chatGateway.server
+        .to(friendRes.senderId.toString())
+        .emit('friend_request_accepted',populatedRes);
+
       return {
         "message": "Accepted"
       };

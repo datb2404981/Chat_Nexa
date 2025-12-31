@@ -8,13 +8,22 @@ import { CreateDirectConversationDto, CreateGroupConversationDto } from './dto/c
 import { IUser } from '../users/users.interface';
 import { Types } from 'mongoose';
 
+import { ChatGateway } from '../gateway/chat.gateway';
+
 @Injectable()
 export class ConversationService {
   constructor(
       @InjectModel(Conversations.name)
     private conversationModel: SoftDeleteModel<ConversationDocument>,
     private friendSeveice: FriendsService,
+    private chatGateway: ChatGateway
     ){ }
+
+  // ... (keep existing methods unchanged until markAsRead)
+
+// ...
+
+
 
   async createDirectConversation(
     createConversationDto: CreateDirectConversationDto, user: IUser) {
@@ -29,7 +38,7 @@ export class ConversationService {
     if (conversation) {
       await this.conversationModel.updateOne(
           { _id: conversation._id },
-          { $pull: { deletedBy: { userId: user._id } } }
+          { $pull: { deletedBy: { _id: user._id } } }
       );
 
       return {
@@ -88,6 +97,27 @@ export class ConversationService {
     //populate để lấy thêm info
     const populatedConversation = await newConversation.populate(
       "members", "_id username isOnline avatar");
+
+    // Realtime: Emit socket event to all members
+    if (this.chatGateway) {
+        const cleanConversation = {
+           ...populatedConversation.toObject(),
+           participants: populatedConversation.members,
+           group: {
+               name: populatedConversation.name,
+               createdBy: populatedConversation.createBy,
+               avatar: populatedConversation.avatar
+           },
+           receiver: null
+        };
+
+        membersObjectIds.forEach(memberId => {
+            this.chatGateway.server
+                .to(memberId.toString())
+                .emit('on_new_conversation', cleanConversation);
+        });
+    }
+
     return {
       "conversation": populatedConversation,
     }
@@ -103,14 +133,14 @@ export class ConversationService {
       this.conversationModel.countDocuments({
         members: { $in: [user._id] },
         deleted: { $ne: true },
-        "deletedBy.userId":{$ne:user._id},
+        "deletedBy._id":{$ne:user._id},
       }),
 
       //query conversation have conditional
       this.conversationModel.find({
         members: { $in: [user._id] },
         deleted: { $ne: true },
-        "deletedBy.userId":{$ne:user._id},
+        "deletedBy._id":{$ne:user._id},
       }).sort({ updatedAt: -1 })
         .skip(skip).limit(defaultLimit)
         .populate("members", "_id username isOnline avatar")
@@ -118,12 +148,25 @@ export class ConversationService {
     ])
 
     const cleanData = conversations.map(conv => {
+        let groupAvatar = null;
+        if (conv.isGroup) {
+            const rawAvatar = conv.avatar || (conv as any).avator;
+            // Clean double quotes if present (e.g. from bad DB import)
+            groupAvatar = rawAvatar ? rawAvatar.replace(/^"|"$/g, '') : null;
+        }
+
         const partner = (conv.members as any[]).find(
             m => m._id.toString() !== user._id.toString()
         );
         
         return {
             ...conv,
+            participants: conv.members,
+            group: conv.isGroup ? {
+                name: conv.name,
+                createdBy: conv.createBy?._id,
+                avatar: groupAvatar
+            } : null,
             // Thêm field tiện ích cho Frontend đỡ phải if/else
             receiver: partner ? {
                 _id: partner._id,
@@ -208,6 +251,9 @@ export class ConversationService {
             userId: user._id,
             lastSeenAt: new Date()
           }
+        },
+        $set: {
+            [`unreadCounts.${user._id}`]: 0
         }
       },
       { new: true }
@@ -217,16 +263,16 @@ export class ConversationService {
 
     //Gắn thông báo Socket
     //báo cho những người khác trong nhóm là "Tui đọc rồi nhe"
-    // if (this.chatGateway) {
-    //     // Emit tới "Phòng" socket của conversation này
-    //     this.chatGateway.server
-    //         .to(conversationId)
-    //         .emit('on_conversation_seen', {
-    //             conversationId: conversationId,
-    //             userId: user._id,
-    //             lastSeenAt: new Date() // Thời điểm vừa đọc
-    //         });
-    // }
+    //Gắn thông báo Socket
+    if (this.chatGateway) {
+        this.chatGateway.server
+            .to(id)
+            .emit('on_conversation_seen', {
+                conversationId: id,
+                userId: user._id,
+                lastSeenAt: new Date()
+            });
+    }
     
     return {
       success: true,

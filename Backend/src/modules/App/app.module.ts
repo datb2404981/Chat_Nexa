@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ConversationModule } from '../conversation/conversation.module';
 import { MessagesModule } from '../messages/messages.module';
 import { FilesModule } from '../files/files.module';
+import { GatewayModule } from '../gateway/gateway.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { FilesModule } from '../files/files.module';
     FriendsModule,
     ConversationModule,
     MessagesModule,
-    FilesModule
+    FilesModule,
+    GatewayModule,
   ],
   controllers: [],
   providers: [{

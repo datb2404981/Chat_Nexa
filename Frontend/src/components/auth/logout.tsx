@@ -2,8 +2,9 @@ import React from 'react'
 import { Button } from '../ui/button'
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNavigate } from 'react-router';
+import { LogOut } from 'lucide-react';
 
-export const LogOut = () => {
+export const LogOutButton = () => {
 
   const {logOut} = useAuthStore();
   const navigate = useNavigate();
@@ -19,6 +20,10 @@ export const LogOut = () => {
   }
 
   return (
-    <Button onClick={handleLogout}>logout</Button>
+    <div onClick={handleLogout} className="flex items-center gap-2 w-full cursor-pointer">
+      <LogOut className="text-red-600 size-4" />
+      <span className="text-red-600 font-medium">Log Out</span>
+    </div>
+    
   )
 }

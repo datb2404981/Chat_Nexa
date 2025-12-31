@@ -8,6 +8,7 @@ import { IUser } from '../users/users.interface';
 import { ConversationDocument, Conversations } from '../conversation/schema/conversation.schema';
 import { Types } from 'mongoose';
 import { NotFoundError } from 'rxjs';
+import { ChatGateway } from '../gateway/chat.gateway';
 
 @Injectable()
 export class MessagesService {
@@ -15,33 +16,58 @@ export class MessagesService {
     @InjectModel(Message.name)
     private messageModel: SoftDeleteModel<MessageDocument>,
     @InjectModel(Conversations.name)
-    private conversationModel: SoftDeleteModel<ConversationDocument>
+    private conversationModel: SoftDeleteModel<ConversationDocument>,
+    private chatGateway: ChatGateway
   ){ }
 
   async createMessage(createMessageDto: CreateMessageDto, user: IUser) {
-    const { conversationId, content, fileUrl,type } = createMessageDto;
+    const { conversationId, content, imgUrl,type } = createMessageDto;
 
     //tạo và lưu tin nhắn mới
     const newMessage = await this.messageModel.create({
       conversationId: new Types.ObjectId(conversationId),
       content,
-      fileUrl,
+      imgUrl,
       senderID: new Types.ObjectId(user._id),
       type: type || "TEXT",
     });
 
     //cập nhập tin nhắn mới cho conversation
-    await this.conversationModel.updateOne(
-      { _id: conversationId }, {
-      lastMessage: {
-        _id: newMessage._id,
-        content: type === "IMAGE" ? "Đã gửi một ảnh" : content,
-        sendId: user._id,
-        createdAt: newMessage.createdAt
-      }
-    });
+    const conversation = await this.conversationModel.findById(conversationId);
+    if(conversation) {
+      const incUpdate: Record<string, number> = {};
+      conversation.members.forEach((memberId) => {
+          if(memberId.toString() !== user._id.toString()){
+              incUpdate[`unreadCounts.${memberId}`] = 1;
+          }
+      });
 
-    const populateMessage = await newMessage.populate("senderID","username avatar isOnline")
+      await this.conversationModel.updateOne(
+        { _id: conversationId }, {
+        lastMessage: {
+          _id: newMessage._id,
+          content: type === "IMAGE" ? "Đã gửi một ảnh" : content,
+          sender: {
+              _id: user._id,
+              username: user.username,
+              avatar: user.avatar
+          },
+          createdAt: newMessage.createdAt
+          },
+          readBy: [{ userId: user._id, lastSeenAt: new Date() }],
+          $inc: incUpdate,
+      });
+    }
+    
+    const populateMessage = await newMessage.populate("senderID", "username avatar isOnline")
+    const updatedConversation = await this.conversationModel.findById(conversationId).lean().exec();
+
+    this.chatGateway.server
+      .to(conversationId)
+      .emit('new_message', {
+          message: populateMessage, 
+          conversation: updatedConversation 
+      });
     return {
       message: populateMessage,
       success: true
@@ -107,9 +133,9 @@ export class MessagesService {
 
     const orderedMessages = messages.reverse();//đạo ngược mảng lại cho Frontend 
     return {
-      data: orderedMessages,
+      message: orderedMessages,
       meta: {
-        current: page,
+        nextCursor: page+1,
         pageSize: defaultLimit,
         pages: Math.ceil(total / defaultLimit),
         total: total,

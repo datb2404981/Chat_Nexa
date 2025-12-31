@@ -15,7 +15,7 @@ export class AuthService {
 
   async login(loginInDto: SignInDto, res: Response): Promise<any> {
     //tìm kiếm có tài khoản không
-    const user = await this.usersService.findUserByEmail(loginInDto.email);
+    const user = await this.usersService.findUserByEmail(loginInDto.email, true);
     if (!user) {
       throw new UnauthorizedException("Email hoặc password không đúng!");
     }
@@ -105,6 +105,7 @@ export class AuthService {
       httpOnly: true,
       secure: false, // Ensure secure is false for localhost debugging
       sameSite: 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -122,7 +123,7 @@ export class AuthService {
   private async createRefreshToken(payload: any) {
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRE') || '1d') as any,
+      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRE') || '7d') as any,
     });
   }
 
