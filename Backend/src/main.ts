@@ -33,7 +33,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const port = process.env.PORT || 8080;
-  await app.listen('0.0.0.0');
-  console.log(`🚀 Nexa Server is running on: http://localhost:${port}/api/v1`);
+  await app.listen(port,'0.0.0.0');
+  console.log(`🚀 Nexa Server is running on: ${await app.getUrl()}`);
 }
 bootstrap();
