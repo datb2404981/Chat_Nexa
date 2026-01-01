@@ -1,6 +1,6 @@
 // src/components/ProtectedRoute.tsx
 import { useAuthStore } from '@/store/useAuthStore';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 
