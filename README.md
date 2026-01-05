@@ -6,6 +6,10 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-View_Project-FF5722?style=for-the-badge&logo=vercel&logoColor=white)](https://chat-nexa-b3rf.vercel.app/)
+
+![Chat Nexa Demo Screenshot](./Frontend/public/ScreenShotProject.png)
+
 > **Mô tả:** Hệ thống Backend Chat Realtime hiệu năng cao, xây dựng trên kiến trúc Module của NestJS, tối ưu hóa lưu trữ với MongoDB và xử lý thời gian thực bằng Socket.IO.
 
 ---
