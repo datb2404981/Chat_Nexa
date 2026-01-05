@@ -10,10 +10,9 @@ export const LogOutButton = () => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const isSuccess = await logOut();
-      if (isSuccess) {
-        navigate("/login");
-      }
+      await logOut();
+
+      navigate("/login");
     } catch (error) { 
       console.log(error);
     }
