@@ -21,8 +21,6 @@
 - [Kiến trúc & Công nghệ](#-kiến-trúc--công-nghệ-tech-stack)
 - [Mô hình dữ liệu (ERD)](#-mô-hình-dữ-liệu-erd)
 - [Cài đặt & Chạy dự án](#-cài-đặt--chạy-dự-án-installation)
-- [API Documentation](#-api-documentation)
-- [Bài học & Thách thức](#-bài-học--thách-thức-challenges)
 - [Liên hệ](#-tác-giả-author)
 
 ---
@@ -114,5 +112,52 @@ Hệ thống sử dụng MongoDB với các Collection chính:
 3.**Cấu hình biến môi trường (.env):**
 ```bash
 cp .env.example .env
+```
 
 Cập nhật thông tin trong file .env:
+```env
+   PORT=3000
+   MONGODB_URI=mongodb://localhost:27017/nest-chat
+   JWT_SECRET=your_super_secret_access_key
+   JWT_REFRESH_SECRET=your_super_secret_refresh_key
+   CLOUDINARY_NAME=...
+   CLOUDINARY_API_KEY=...
+   CLOUDINARY_API_SECRET=...
+   FRONTEND_URL=http://localhost:5173
+```
+4. **Chạy ứng dụng:**
+
+- Môi trường Development:
+
+```Bash
+npm run start:dev
+```
+- Môi trường Production:
+
+```Bash
+npm run build
+npm run start:prod
+```
+🔮 Roadmap (Tương lai)
+[ ] Tích hợp Redis Adapter để scale Socket.IO ra nhiều instances.
+
+[ ] Triển khai Docker & Docker Compose cho môi trường dev/prod.
+
+[ ] Tính năng Call Video/Audio (WebRTC).
+
+[ ] Mã hóa đầu cuối (E2E Encryption).
+
+[ ] Thông báo đẩy (Push Notification) qua Firebase.
+
+👤 Tác giả (Author)
+[TÊN CỦA BẠN]
+
+Github: @datb2404981
+
+LinkedIn: [Link Profile](https://www.linkedin.com/in/nguyen-van-dat-nguy%E1%BB%85n-9280ab377?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BqhZDfCwVS16gThoIIkk3XA%3D%3D)
+
+Email: vandat0709.se@gmail.com
+
+---
+
+##
