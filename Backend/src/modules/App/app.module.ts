@@ -6,7 +6,7 @@ import mongooseDelete from 'mongoose-delete';
 import { APP_GUARD } from '@nestjs/core';
 import { FriendsModule } from '../friends/friends.module';
 import { AuthModule } from '../auth/auth.module';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ConversationModule } from '../conversation/conversation.module';
 import { MessagesModule } from '../messages/messages.module';
 import { FilesModule } from '../files/files.module';

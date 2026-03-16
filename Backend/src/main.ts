@@ -3,6 +3,7 @@ import { AppModule } from './modules/App/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,7 +30,10 @@ async function bootstrap() {
   // Cần Reflector để đọc được cái decorator @ResponseMessage
   app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
 
-  //5. config cookie
+  // 5.Kích hoạt Filter (Để format lỗi đẹp) 
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  //6. config cookie
   app.use(cookieParser());
 
   const port = process.env.PORT || 8080;

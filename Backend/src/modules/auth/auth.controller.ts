@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query, Req, Res, UseGuards, UnauthorizedEx
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, SignInDto } from './dto/AuthDto';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { ResponseMessage, SkipPermission, User } from '../../common/decorator/decorators';
